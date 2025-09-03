@@ -1,46 +1,111 @@
 import { useState, useEffect } from "react";
 import CountdownScreen from "./screens/CountdownScreen";
 import SettingsScreen from "./screens/SettingsScreen";
+import CountdownListScreen from "./screens/CountdownListScreen";
 import UpdatePrompt from "./components/UpdatePrompt";
-
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 export default function App() {
-  const [settings, setSettings] = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
+  const [countdowns, setCountdowns] = useState([]);
+  const [currentView, setCurrentView] = useState('list'); // 'list', 'countdown', 'settings'
+  const [selectedCountdown, setSelectedCountdown] = useState(null);
+  const [editingCountdown, setEditingCountdown] = useState(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("countdownSettings");
-    if (saved) setSettings(JSON.parse(saved));
+    // Migrate old single countdown to new multiple countdown format
+    const oldSettings = localStorage.getItem("countdownSettings");
+    const newCountdowns = localStorage.getItem("countdowns");
+    
+    if (oldSettings && !newCountdowns) {
+      // Migrate old format
+      const parsed = JSON.parse(oldSettings);
+      const migratedCountdown = { ...parsed, id: Date.now().toString() };
+      const countdownsArray = [migratedCountdown];
+      localStorage.setItem("countdowns", JSON.stringify(countdownsArray));
+      localStorage.removeItem("countdownSettings");
+      setCountdowns(countdownsArray);
+    } else if (newCountdowns) {
+      setCountdowns(JSON.parse(newCountdowns));
+    }
   }, []);
 
-  const saveSettings = (newSettings) => {
-    setSettings(newSettings);
-    localStorage.setItem("countdownSettings", JSON.stringify(newSettings));
-    setShowSettings(false);
+  const saveCountdowns = (newCountdowns) => {
+    setCountdowns(newCountdowns);
+    localStorage.setItem("countdowns", JSON.stringify(newCountdowns));
   };
 
-  const deleteSettings = () => {
-    localStorage.removeItem("countdownSettings");
-    setSettings(null);
-    setShowSettings(true);
+  const saveCountdown = (countdownData) => {
+    let updatedCountdowns;
+    
+    if (editingCountdown) {
+      // Update existing countdown
+      updatedCountdowns = countdowns.map(c => 
+        c.id === editingCountdown.id ? { ...countdownData, id: editingCountdown.id } : c
+      );
+    } else {
+      // Create new countdown
+      const newCountdown = { ...countdownData, id: Date.now().toString() };
+      updatedCountdowns = [...countdowns, newCountdown];
+    }
+    
+    saveCountdowns(updatedCountdowns);
+    setCurrentView('list');
+    setEditingCountdown(null);
   };
-    return (
-    <>
-      {(!settings || showSettings) ? (
-        <SettingsScreen
-          onSave={saveSettings}
-          initialSettings={settings}
-          onDelete={deleteSettings}
+
+  const deleteCountdown = (countdownId) => {
+    const updatedCountdowns = countdowns.filter(c => c.id !== countdownId);
+    saveCountdowns(updatedCountdowns);
+    setCurrentView('list');
+    setEditingCountdown(null);
+  };
+
+  const showCountdown = (countdown) => {
+    setSelectedCountdown(countdown);
+    setCurrentView('countdown');
+  };
+
+  const showSettings = (countdown = null) => {
+    setEditingCountdown(countdown);
+    setCurrentView('settings');
+  };
+
+  const showList = () => {
+    setCurrentView('list');
+    setSelectedCountdown(null);
+    setEditingCountdown(null);
+  };
+
+  return (
+    <ThemeProvider>      
+      {currentView === 'list' && (
+        <CountdownListScreen
+          countdowns={countdowns}
+          onSelectCountdown={showCountdown}
+          onEditCountdown={showSettings}
+          onDeleteCountdown={deleteCountdown}
+          onCreateNew={() => showSettings()}
         />
-      ) : (
+      )}
+      
+      {currentView === 'countdown' && selectedCountdown && (
         <CountdownScreen
-          settings={settings}
-          onEdit={() => setShowSettings(true)}
+          countdown={selectedCountdown}
+          onEdit={() => showSettings(selectedCountdown)}
+          onBack={showList}
+        />
+      )}
+      
+      {currentView === 'settings' && (
+        <SettingsScreen
+          onSave={saveCountdown}
+          initialSettings={editingCountdown}
+          onDelete={() => deleteCountdown(editingCountdown?.id)}
+          onCancel={showList}
         />
       )}
 
       <UpdatePrompt />
-    </>
+    </ThemeProvider>
   );
-
 }

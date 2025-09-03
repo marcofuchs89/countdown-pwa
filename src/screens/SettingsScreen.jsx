@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useTheme } from "../contexts/ThemeContext";
+import { Button, Card, Input, Label, Select, Checkbox } from "../components/SharedComponents";
 
-export default function SettingsScreen({ onSave, initialSettings, onDelete }) {
+export default function SettingsScreen({ onSave, initialSettings, onDelete, onCancel }) {
+  const { theme, toggleTheme } = useTheme();
   const [name, setName] = useState(initialSettings?.name || "");
   const [targetDate, setTargetDate] = useState(initialSettings?.targetDate || "");
   const [showWorkdays, setShowWorkdays] = useState(initialSettings?.showWorkdays || false);
@@ -14,131 +17,235 @@ export default function SettingsScreen({ onSave, initialSettings, onDelete }) {
     onSave({ name, targetDate, showWorkdays, includeHolidays, bundesland, urlaubstage, genommen });
   };
 
+  const handleDelete = () => {
+    if (confirm('Sind Sie sicher, dass Sie diesen Countdown löschen möchten?')) {
+      onDelete();
+    }
+  };
+
   return (
-    <div style={styles.container}>
-      <img src="/icons/icon-192x192.png" alt="App Icon" style={styles.icon} />
-      <h1 style={styles.title}>Countdown Einstellungen</h1>
+    <div style={styles.container(theme)}>
+      <div style={styles.header(theme)}>
+        <img src="/icons/icon-192x192.png" alt="App Icon" style={styles.icon} />
+        <h1 style={styles.title(theme)}>
+          {initialSettings ? 'Countdown bearbeiten' : 'Neuen Countdown erstellen'}
+        </h1>
+        <button 
+          onClick={toggleTheme}
+          style={styles.themeToggle(theme)}
+          title={theme === 'dark' ? 'Zu hellem Design wechseln' : 'Zu dunklem Design wechseln'}
+        >
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+      </div>
 
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <label style={styles.label}>Name:</label>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required style={styles.input} />
-
-        <label style={styles.label}>Enddatum:</label>
-        <input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} required style={styles.input} />
-
-        <label style={styles.checkbox}>
-          <input type="checkbox" checked={showWorkdays} onChange={() => setShowWorkdays(!showWorkdays)} />
-          Arbeitstage berechnen
-        </label>
-
-        {showWorkdays && (
-          <>
-            <label style={styles.checkbox}>
-              <input
-                type="checkbox"
-                checked={includeHolidays}
-                onChange={() => setIncludeHolidays(!includeHolidays)}
-              />
-              Feiertage berücksichtigen
-            </label>
-
-            {includeHolidays && (
-              <>
-                <label style={styles.label}>Bundesland:</label>
-                <select
-                  value={bundesland}
-                  onChange={(e) => setBundesland(e.target.value)}
-                  style={styles.input}
-                >
-                  <option value="BW">Baden-Württemberg</option>
-                  <option value="BY">Bayern</option>
-                  <option value="BE">Berlin</option>
-                  <option value="BB">Brandenburg</option>
-                  <option value="HB">Bremen</option>
-                  <option value="HH">Hamburg</option>
-                  <option value="HE">Hessen</option>
-                  <option value="MV">Mecklenburg-Vorpommern</option>
-                  <option value="NI">Niedersachsen</option>
-                  <option value="NW">Nordrhein-Westfalen</option>
-                  <option value="RP">Rheinland-Pfalz</option>
-                  <option value="SL">Saarland</option>
-                  <option value="SN">Sachsen</option>
-                  <option value="ST">Sachsen-Anhalt</option>
-                  <option value="SH">Schleswig-Holstein</option>
-                  <option value="TH">Thüringen</option>
-                </select>
-              </>
-            )}
-
-            <label style={styles.label}>Urlaubstage pro Jahr:</label>
-            <input
-              type="number"
-              value={urlaubstage}
-              onChange={(e) => setUrlaubstage(Number(e.target.value))}
-              style={styles.input}
+      <Card style={styles.formCard}>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.inputGroup}>
+            <Label>Name:</Label>
+            <Input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              placeholder="z.B. Urlaub, Projektende, Geburtstag"
             />
+          </div>
 
-            <label style={styles.label}>Bereits genommene Urlaubstage:</label>
-            <input
-              type="number"
-              value={genommen}
-              onChange={(e) => setGenommen(Number(e.target.value))}
-              style={styles.input}
+          <div style={styles.inputGroup}>
+            <Label>Enddatum:</Label>
+            <Input
+              type="date"
+              value={targetDate}
+              onChange={(e) => setTargetDate(e.target.value)}
+              required
             />
-          </>
-        )}
+          </div>
 
+          <div style={styles.checkboxGroup}>
+            <Checkbox
+              checked={showWorkdays}
+              onChange={() => setShowWorkdays(!showWorkdays)}
+              label="Arbeitstage berechnen"
+            />
+          </div>
 
-        <div style={styles.buttonRow}>
-          <button type="submit" style={styles.button}>Speichern</button>
-          {initialSettings && (
-            <button type="button" style={{ ...styles.button, backgroundColor: "red" }} onClick={onDelete}>
-              Löschen
-            </button>
+          {showWorkdays && (
+            <>
+              <div style={styles.checkboxGroup}>
+                <Checkbox
+                  checked={includeHolidays}
+                  onChange={() => setIncludeHolidays(!includeHolidays)}
+                  label="Feiertage berücksichtigen"
+                />
+              </div>
+
+              {includeHolidays && (
+                <div style={styles.inputGroup}>
+                  <Label>Bundesland:</Label>
+                  <Select
+                    value={bundesland}
+                    onChange={(e) => setBundesland(e.target.value)}
+                  >
+                    <option value="BW">Baden-Württemberg</option>
+                    <option value="BY">Bayern</option>
+                    <option value="BE">Berlin</option>
+                    <option value="BB">Brandenburg</option>
+                    <option value="HB">Bremen</option>
+                    <option value="HH">Hamburg</option>
+                    <option value="HE">Hessen</option>
+                    <option value="MV">Mecklenburg-Vorpommern</option>
+                    <option value="NI">Niedersachsen</option>
+                    <option value="NW">Nordrhein-Westfalen</option>
+                    <option value="RP">Rheinland-Pfalz</option>
+                    <option value="SL">Saarland</option>
+                    <option value="SN">Sachsen</option>
+                    <option value="ST">Sachsen-Anhalt</option>
+                    <option value="SH">Schleswig-Holstein</option>
+                    <option value="TH">Thüringen</option>
+                  </Select>
+                </div>
+              )}
+
+              <div style={styles.inputGroup}>
+                <Label>Urlaubstage pro Jahr:</Label>
+                <Input
+                  type="number"
+                  value={urlaubstage}
+                  onChange={(e) => setUrlaubstage(Number(e.target.value))}
+                  min="0"
+                  max="365"
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <Label>Bereits genommene Urlaubstage:</Label>
+                <Input
+                  type="number"
+                  value={genommen}
+                  onChange={(e) => setGenommen(Number(e.target.value))}
+                  min="0"
+                  max={urlaubstage}
+                />
+              </div>
+            </>
           )}
-        </div>
-      </form>
+
+          <div style={styles.buttonGroup}>
+            <Button variant="secondary" onClick={onCancel}>
+              Abbrechen
+            </Button>
+            <Button type="submit" variant="primary">
+              {initialSettings ? 'Aktualisieren' : 'Erstellen'}
+            </Button>
+            {initialSettings && (
+              <Button variant="danger" onClick={handleDelete}>
+                Löschen
+              </Button>
+            )}
+          </div>
+        </form>
+      </Card>
     </div>
   );
 }
 
 const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-    width: "100vw",
-    fontFamily: "Arial, sans-serif",
-    backgroundColor: "#000000",
-    margin: 0,
-    padding: "20px",
-    color: "#ffffff"
+  container: (theme) => ({
+    minHeight: '100vh',
+    padding: '20px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    backgroundColor: theme.colors.background,
+    color: theme.colors.text,
+    fontFamily: theme.fonts.primary,
+    '@media (max-width: 768px)': {
+      padding: '10px'
+    }
+  }),
+  header: (theme) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginBottom: '30px',
+    position: 'relative',
+    width: '100%',
+    maxWidth: '500px'
+  }),
+  icon: {
+    width: '80px',
+    height: '80px',
+    marginBottom: '20px',
+    '@media (max-width: 480px)': {
+      width: '60px',
+      height: '60px'
+    }
   },
-  icon: { width: "80px", height: "80px", marginBottom: "15px" },
-  title: { fontSize: "26px", marginBottom: "20px" },
-  form: { display: "flex", flexDirection: "column", width: "280px" },
-  input: {
-    marginBottom: "12px",
-    padding: "10px",
-    fontSize: "16px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-    backgroundColor: "#ffffff",
-    color: "#000000"
+  title: (theme) => ({
+    fontSize: '1.8rem',
+    fontWeight: 'bold',
+    color: theme.colors.primary,
+    textAlign: 'center',
+    margin: '0',
+    '@media (max-width: 768px)': {
+      fontSize: '1.5rem'
+    },
+    '@media (max-width: 480px)': {
+      fontSize: '1.3rem'
+    }
+  }),
+  themeToggle: (theme) => ({
+    position: 'absolute',
+    top: '0',
+    right: '0',
+    background: 'none',
+    border: 'none',
+    fontSize: '1.5rem',
+    cursor: 'pointer',
+    padding: '8px',
+    borderRadius: '50%',
+    transition: 'background-color 0.2s',
+    backgroundColor: theme.colors.surface,
+    ':hover': {
+      backgroundColor: theme.colors.hover
+    }
+  }),
+  formCard: {
+    width: '100%',
+    maxWidth: '500px',
+    padding: '30px',
+    '@media (max-width: 768px)': {
+      padding: '20px'
+    },
+    '@media (max-width: 480px)': {
+      padding: '15px'
+    }
   },
-  label: { fontWeight: "bold", marginBottom: "5px" },
-  checkbox: { marginBottom: "12px", fontSize: "16px" },
-  buttonRow: { display: "flex", justifyContent: "space-between", marginTop: "20px" },
-  button: {
-    padding: "10px 20px",
-    borderRadius: "8px",
-    border: "none",
-    backgroundColor: "#007bff",
-    color: "white",
-    fontSize: "16px",
-    cursor: "pointer"
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '20px'
+  },
+  inputGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px'
+  },
+  checkboxGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  buttonGroup: {
+    display: 'flex',
+    gap: '12px',
+    marginTop: '20px',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    '@media (max-width: 480px)': {
+      flexDirection: 'column'
+    }
   }
 };
 
