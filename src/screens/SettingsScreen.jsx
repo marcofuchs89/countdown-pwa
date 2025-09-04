@@ -175,10 +175,6 @@ export default function SettingsScreen({ onSave, initialSettings, onDelete, onCa
           </div>
         </form>
       </Card>
-      
-      <Card style={styles.formCard}>
-        <ThemeSelector />
-      </Card>
     </div>
   );
 }
