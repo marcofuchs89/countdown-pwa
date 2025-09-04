@@ -3,9 +3,10 @@ import { calculateRemainingWorkdays, calculateRemainingWorkdaysWithHolidays } fr
 import { calculateDetailedTime, formatDetailedTime } from "../utils/timeCalculator";
 import { useTheme } from "../contexts/ThemeContext";
 import { Button } from "../components/SharedComponents";
+import ThemeSelector from "../components/ThemeSelector";
 
 export default function CountdownScreen({ countdown, onEdit, onBack }) {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleMode } = useTheme();
   const today = new Date();
   const targetDate = new Date(countdown.targetDate);
 
@@ -57,12 +58,14 @@ export default function CountdownScreen({ countdown, onEdit, onBack }) {
         <Button variant="secondary" onClick={onBack} style={styles.backButton}>
           ← Zurück zur Liste
         </Button>
-        <button 
-          onClick={toggleTheme}
-          style={styles.themeToggle(theme)}
-          title={theme.name === 'dark' ? 'Zu hellem Design wechseln' : 'Zu dunklem Design wechseln'}
-        >
-          {theme.name === 'dark' ? (
+        <div style={styles.themeControls}>
+          <ThemeSelector compact />
+          <button 
+            onClick={toggleMode}
+            style={styles.themeToggle(theme)}
+            title={theme.name.includes('dark') ? 'Zu hellem Design wechseln' : 'Zu dunklem Design wechseln'}
+          >
+            {theme.name.includes('dark') ? (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="5"/>
               <line x1="12" y1="1" x2="12" y2="3"/>
@@ -80,6 +83,7 @@ export default function CountdownScreen({ countdown, onEdit, onBack }) {
             </svg>
           )}
         </button>
+        </div>
       </div>
       
       <div style={styles.content}>
@@ -187,6 +191,11 @@ const styles = {
     left: 0,
     right: 0,
     zIndex: 10
+  },
+  themeControls: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
   },
   backButton: {
     fontSize: '14px'
