@@ -7,7 +7,7 @@ export async function fetchHolidays(year, bundesland) {
   if (cached) {
     try {
       return JSON.parse(cached);
-    } catch (e) {
+    } catch {
       console.warn("Fehler beim Lesen aus Cache, lade API neu...");
     }
   }
