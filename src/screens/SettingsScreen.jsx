@@ -177,6 +177,10 @@ const styles = {
     width: '80px',
     height: '80px',
     marginBottom: '20px',
+    borderRadius: '16px',
+    padding: '8px',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
     '@media (max-width: 480px)': {
       width: '60px',
       height: '60px'
