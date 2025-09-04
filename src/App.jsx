@@ -19,13 +19,28 @@ export default function App() {
     if (oldSettings && !newCountdowns) {
       // Migrate old format
       const parsed = JSON.parse(oldSettings);
-      const migratedCountdown = { ...parsed, id: Date.now().toString() };
+      const migratedCountdown = { 
+        ...parsed, 
+        id: Date.now().toString(),
+        showDetailedTime: false // Add default value for new property
+      };
       const countdownsArray = [migratedCountdown];
       localStorage.setItem("countdowns", JSON.stringify(countdownsArray));
       localStorage.removeItem("countdownSettings");
       setCountdowns(countdownsArray);
     } else if (newCountdowns) {
-      setCountdowns(JSON.parse(newCountdowns));
+      const parsed = JSON.parse(newCountdowns);
+      // Ensure all countdowns have the showDetailedTime property
+      const updatedCountdowns = parsed.map(countdown => ({
+        ...countdown,
+        showDetailedTime: countdown.showDetailedTime ?? false
+      }));
+      setCountdowns(updatedCountdowns);
+      
+      // Save updated countdowns if any were missing the property
+      if (updatedCountdowns.some((c, i) => c.showDetailedTime !== parsed[i].showDetailedTime)) {
+        localStorage.setItem("countdowns", JSON.stringify(updatedCountdowns));
+      }
     }
   }, []);
 
