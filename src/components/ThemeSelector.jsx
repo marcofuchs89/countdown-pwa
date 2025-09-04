@@ -56,8 +56,6 @@ export default function ThemeSelector({ compact = false }) {
     setHoveredTheme(null);
   };
 
-  const currentColors = getThemeColors(currentThemeName, currentMode);
-
   if (compact) {
     return (
       <div style={styles.compactContainer(theme)}>
@@ -79,7 +77,6 @@ export default function ThemeSelector({ compact = false }) {
             <div style={styles.backdrop} onClick={() => setIsOpen(false)} />
             <div style={styles.compactDropdown(theme)}>
               {availableThemes.map(themeName => {
-                const colors = getThemeColors(themeName, currentMode);
                 return (
                   <button
                     key={themeName}
@@ -140,7 +137,7 @@ export default function ThemeSelector({ compact = false }) {
 }
 
 const styles = {
-  container: (theme) => ({
+  container: () => ({
     margin: '20px 0'
   }),
   title: (theme) => ({
@@ -192,7 +189,7 @@ const styles = {
   }),
   
   // Compact styles for header usage
-  compactContainer: (theme) => ({
+  compactContainer: () => ({
     position: 'relative',
     display: 'inline-block'
   }),
@@ -249,7 +246,7 @@ const styles = {
     minWidth: '140px',
     overflow: 'hidden'
   }),
-  compactOption: (theme) => ({
+  compactOption: () => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -268,7 +265,7 @@ const styles = {
   compactOptionHovered: (theme) => ({
     backgroundColor: theme.colors.hover
   }),
-  compactOptionText: (theme) => ({
+  compactOptionText: () => ({
     fontSize: '0.85rem',
     color: 'inherit',
     marginLeft: '8px',

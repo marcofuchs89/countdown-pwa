@@ -197,7 +197,7 @@ const styles = {
       padding: '10px'
     }
   }),
-  header: (theme) => ({
+  header: () => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',

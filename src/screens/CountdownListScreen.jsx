@@ -272,7 +272,7 @@ const styles = {
     maxWidth: '100vw',
     boxSizing: 'border-box'
   }),
-  header: (theme) => ({
+  header: () => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -316,7 +316,7 @@ const styles = {
     alignItems: 'center',
     gap: '10px'
   },
-  emptyState: (theme) => ({
+  emptyState: () => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -336,7 +336,7 @@ const styles = {
     flexDirection: 'column',
     gap: '15px'
   },
-  countdownCard: (theme) => ({
+  countdownCard: () => ({
     padding: '20px',
     cursor: 'pointer',
     transition: 'transform 0.2s, box-shadow 0.2s'
@@ -362,7 +362,7 @@ const styles = {
     display: 'flex',
     gap: '8px'
   },
-  actionButton: (theme) => ({
+  actionButton: () => ({
     background: 'none',
     border: 'none',
     fontSize: '1.1rem',
@@ -371,7 +371,7 @@ const styles = {
     borderRadius: '4px',
     transition: 'background-color 0.2s'
   }),
-  deleteButton: (theme) => ({
+  deleteButton: () => ({
     background: 'none',
     border: 'none',
     fontSize: '1.1rem',
@@ -390,7 +390,7 @@ const styles = {
     color: theme.colors.textSecondary,
     margin: '0'
   }),
-  daysLeft: (theme) => ({
+  daysLeft: () => ({
     fontSize: '1.1rem',
     fontWeight: 'bold',
     margin: '0'

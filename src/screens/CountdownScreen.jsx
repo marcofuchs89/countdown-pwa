@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { calculateRemainingWorkdays, calculateRemainingWorkdaysWithHolidays } from "../utils/workdayCalculator";
 import { calculateDetailedTime, formatDetailedTime } from "../utils/timeCalculator";
 import { useTheme } from "../contexts/ThemeContext";
@@ -7,8 +7,9 @@ import ThemeSelector from "../components/ThemeSelector";
 
 export default function CountdownScreen({ countdown, onEdit, onBack }) {
   const { theme, toggleMode } = useTheme();
-  const today = new Date();
-  const targetDate = new Date(countdown.targetDate);
+  
+  const today = useMemo(() => new Date(), []);
+  const targetDate = useMemo(() => new Date(countdown.targetDate), [countdown.targetDate]);
 
   const diff = targetDate - today;
   const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
@@ -248,19 +249,19 @@ const styles = {
     alignItems: 'center',
     margin: '20px 0'
   },
-  detailedTimeContainer: (theme) => ({
+  detailedTimeContainer: () => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: '20px'
   }),
-  standardTimeContainer: (theme) => ({
+  standardTimeContainer: () => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     gap: '20px'
   }),
-  timeBreakdown: (theme) => ({
+  timeBreakdown: () => ({
     display: 'grid',
     gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
     gap: '15px',
@@ -314,7 +315,7 @@ const styles = {
     color: theme.colors.textSecondary,
     margin: '10px 0'
   }),
-  expiredContainer: (theme) => ({
+  expiredContainer: () => ({
     textAlign: 'center',
     margin: '20px 0'
   }),
